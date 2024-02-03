@@ -20,6 +20,13 @@
     "@jridgewell/gen-mapping" "^0.3.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
+"@erosson/polynomial@^5.0.4":
+  version "5.0.4"
+  resolved "https://registry.yarnpkg.com/@erosson/polynomial/-/polynomial-5.0.4.tgz#83171ef84883759067b371ac5a5b740d18f0204c"
+  integrity sha512-48etvW7yJwRTq1ET67qz6NuaWBatnOqjxng++BXA7fxNEwrqTwcPGSBEI9tgdw3ZVaINaTqjnxkqTgMiG8272g==
+  dependencies:
+    toposort "^2.0.2"
+
 "@esbuild/aix-ppc64@0.19.12":
   version "0.19.12"
   resolved "https://registry.yarnpkg.com/@esbuild/aix-ppc64/-/aix-ppc64-0.19.12.tgz#d1bc06aedb6936b3b6d313bf809a5a40387d2b7f"
@@ -2324,6 +2331,11 @@ to-regex-range@^5.0.1:
   dependencies:
     is-number "^7.0.0"
 
+toposort@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/toposort/-/toposort-2.0.2.tgz#ae21768175d1559d48bef35420b2f4962f09c330"
+  integrity sha512-0a5EOkAUp8D4moMi2W8ZF8jcga7BgZd91O/yabJCFY8az+XSzeGyTKs0Aoo897iV1Nj6guFq8orWDS96z91oGg==
+
 totalist@^3.0.0:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/totalist/-/totalist-3.0.1.tgz#ba3a3d600c915b1a97872348f79c127475f6acf8"
@@ -2517,3 +2529,8 @@ zimmerframe@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/zimmerframe/-/zimmerframe-1.1.0.tgz#29f2b760d11228490109808e2b56ba67f25af199"
   integrity sha512-+AmV37r9NPUy7KcuG0Fde9AAFSD88kN5pnqvD7Pkp5WLLK0jct7hAtIDXXFDCRk3l5Mc1r2Sth3gfP2ZLE+/Qw==
+
+zod@^3.22.4:
+  version "3.22.4"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.22.4.tgz#f31c3a9386f61b1f228af56faa9255e845cf3fff"
+  integrity sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==

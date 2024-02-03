@@ -39,5 +39,9 @@
 		"vite": "^5.0.3",
 		"vitest": "^1.2.0"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"@erosson/polynomial": "^5.0.4",
+		"zod": "^3.22.4"
+	}
 }
