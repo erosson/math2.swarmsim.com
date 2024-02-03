@@ -4,41 +4,26 @@
 	import PolynomialHorner from './PolynomialHorner.svelte';
 	import Num from './Num.svelte';
 	import TimerPause from './TimerPause.svelte';
+	import { Timer } from './timer';
 
 	let tInput = $state(`0`);
 	let polyInput = $state(`10000, 2, 3, 4, 5`);
+	let timer = $state(new Timer(Math.floor(performance.timeOrigin)));
+	let paused = $state(false);
 
 	const poly = $derived(parsePolynomial(polyInput) ?? Polynomial.zero());
-	let timeOrigin = $state(Math.floor(performance.timeOrigin));
-	let now = $state(Math.floor(performance.timeOrigin));
-	const t = $derived(tCalc());
-	const valueAt = $derived(poly.evaluate(t));
-	let paused = $state(false);
-	let animating = false;
+	const valueAt = $derived(poly.evaluate(timer.elapsedSec));
 
-	$effect(() => {
-		if (!animating) {
-			animate();
-			animating = true;
-		}
-	});
-	function animate() {
-		if (!paused) {
-			now = Date.now();
-			tInput = `${tCalc()}`;
-		}
-		requestAnimationFrame(animate);
-	}
-	function tCalc() {
-		return (now - timeOrigin) / 1000;
-	}
-	function parseAndSetT(input: string) {
-		const parsed = parseFloat(input);
-		if (isNaN(parsed)) return;
-		now = Date.now();
-		timeOrigin = now - parsed * 1000;
-		console.log('setT', { now, timeOrigin, t: tCalc() });
-	}
+	$effect(
+		Timer.animate({
+			get: () => timer,
+			set: (t: Timer) => {
+				timer = t;
+				tInput = `${t.elapsedSec}`;
+			},
+			isPaused: () => paused
+		})
+	);
 	function parsePolynomial(v: string): Polynomial<number> | null {
 		const coeffs = v.split(',').map((c) => parseFloat(c.trim() || '0'));
 		if (coeffs.some(isNaN)) return null;
@@ -65,15 +50,15 @@
 				class="input w-20"
 				type="number"
 				bind:value={tInput}
-				oninput={() => parseAndSetT(tInput)}
+				oninput={() => (timer = timer.parseElapsedSec(tInput) ?? timer)}
 			/>
 		</label>
 	</div>
-	<TimerPause bind:paused bind:now bind:timeOrigin />
+	<TimerPause bind:paused bind:timer />
 
 	<div class="font-mono">
 		<div>f(t) = <PolynomialView value={poly} /></div>
 		<div>f(t) = <PolynomialHorner value={poly} /></div>
-		<div>f({t.toFixed(3)}) = <Num value={valueAt} /></div>
+		<div>f({timer.elapsedSec.toFixed(3)}) = <Num value={valueAt} /></div>
 	</div>
 </div>

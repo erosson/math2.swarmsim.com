@@ -1,13 +1,12 @@
 <script lang="ts">
-	let { paused, now, timeOrigin } = $props<{ paused: boolean; now: number; timeOrigin: number }>();
+	import { Timer } from './timer';
+
+	let { paused, timer } = $props<{ paused: boolean; timer: Timer }>();
 
 	function setPaused(value: boolean) {
 		if (paused !== value) {
 			if (paused) {
-				const newNow = Date.now();
-				const elapsed = newNow - now;
-				now = newNow;
-				timeOrigin += elapsed;
+				timer = Timer.fromElapsedSec(Date.now(), timer.elapsedSec);
 			}
 			paused = value;
 		}
