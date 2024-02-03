@@ -3,4 +3,4 @@
 	const render = new Intl.NumberFormat('en-us');
 </script>
 
-{render.format(value)}
+<span class="font-mono">{render.format(value)}</span>
