@@ -6,6 +6,7 @@
 	import TimerPause from '$lib/TimerPause.svelte';
 	import { Timer } from '$lib/timer';
 	import { parseEdges, unitName, type Edge, parseCounts } from '$lib/units';
+	import { ProgressRadial } from '@skeletonlabs/skeleton';
 
 	let tInput = $state(`0`);
 	let countInput = $state(`10000, 2, 3, 4, 5`);
@@ -90,6 +91,21 @@
 						f(t) = {#each valueEach.map((e, i) => [e, i]).toReversed() as [e, i]}
 							<Num value={Math.floor(e)} />{i === 0 ? '' : ' + '}
 						{/each}
+					</td>
+					<td>
+						f(t) = {#each valueEach.map((e, i) => [e, i]).toReversed() as [e, i]}
+							<Num value={Math.floor(e)} />{i === 0 ? '' : ' + '}
+						{/each}
+						<div>
+							{#each valueEach.map((e, i) => [e, i]).toReversed() as [e, i]}
+								<ProgressRadial
+									value={(e * 100) / (value || 1)}
+									width="w-6"
+									stroke={256}
+									class="inline-block"
+								/>
+							{/each}
+						</div>
 					</td>
 				</tr>
 			{/each}
