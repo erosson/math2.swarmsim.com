@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { Polynomial } from '@erosson/polynomial';
+	import Num from '$lib/Num.svelte';
 	import PolynomialView from '$lib/Polynomial.svelte';
 	import PolynomialHorner from '$lib/PolynomialHorner.svelte';
-	import Num from '$lib/Num.svelte';
 	import TimerPause from '$lib/TimerPause.svelte';
 	import { Timer } from '$lib/timer';
+	import { parseOps, type NumT } from '$lib/units';
+	import { Polynomial } from '@erosson/polynomial';
 
 	let tInput = $state(`0`);
 	let polyInput = $state(`10000, 2, 3, 4, 5`);
@@ -24,7 +25,7 @@
 			isPaused: () => paused
 		})
 	);
-	function parsePolynomial(v: string): Polynomial<number> | null {
+	function parsePolynomial(v: string): Polynomial<NumT> | null {
 		const coeffs = v.split(',').map((c) => parseFloat(c.trim() || '0'));
 		if (coeffs.some(isNaN)) return null;
 		return Polynomial.parse(coeffs);

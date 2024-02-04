@@ -42,6 +42,8 @@
 	"type": "module",
 	"dependencies": {
 		"@erosson/polynomial": "^5.0.4",
+		"break_infinity.js": "^2.2.0",
+		"decimal.js": "^10.4.3",
 		"zod": "^3.22.4"
 	}
 }

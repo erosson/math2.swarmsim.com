@@ -1,3 +1,7 @@
+import Decimal from "decimal.js";
+import BDecimal from "break_infinity.js";
+import { decimalNumberOps, nativeNumberOps, type NumberOps } from "@erosson/polynomial";
+
 export interface Edge {
     from: string;
     to: string;
@@ -25,8 +29,35 @@ export function parseEdges(v: string): readonly Edge[] | null {
         return { from, to, each };
     });
 }
-export function parseCounts(v: string): ReadonlyMap<string, number> | null {
-    const counts = v.split(',').map((c) => parseFloat(c.trim() || '0'));
-    if (counts.some(isNaN)) return null;
+export function parseCount(v: string, ops: NumTName): NumT {
+    v = v.trim() || '0'
+    switch (ops) {
+        case 'decimal':
+            return new Decimal(v)
+        case 'break_infinity':
+            return new BDecimal(v)
+        case 'number':
+        default:
+            return parseFloat(v)
+    }
+}
+export function parseCounts(v: string, ops: NumTName): ReadonlyMap<string, NumT> | null {
+    const counts = v.split(',').map((c) => parseCount(c, ops));
+    // isNaN
+    if (counts.some(c => typeof c === 'number' ? isNaN(c) : (isNaN(c.s) && isNaN(c.e)))) return null;
     return new Map(counts.map((count, i) => [unitName(i), count]));
+}
+
+export type NumTName = 'number' | 'decimal' | 'break_infinity'
+export type NumT = number | Decimal | BDecimal
+export function parseOps(ops: NumTName): NumberOps<NumT> {
+    switch (ops) {
+        case 'decimal':
+            return decimalNumberOps((n) => new Decimal(n));
+        case 'break_infinity':
+            return decimalNumberOps((n) => new BDecimal(n));
+        case 'number':
+        default:
+            return nativeNumberOps;
+    }
 }
