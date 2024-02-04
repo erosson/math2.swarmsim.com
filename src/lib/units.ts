@@ -50,6 +50,22 @@ export function parseCounts(v: string, ops: NumTName): ReadonlyMap<string, NumT>
 
 export type NumTName = 'number' | 'decimal' | 'break_infinity'
 export type NumT = number | Decimal | BDecimal
+export function parseNumT(v: string): NumTName | null {
+    switch (v) {
+        case 'number':
+        case 'decimal':
+        case 'break_infinity':
+            return v
+        case 'n':
+            return 'number'
+        case 'd':
+            return 'decimal'
+        case 'b':
+            return 'break_infinity'
+        default:
+            return null
+    }
+}
 export function parseOps(ops: NumTName): NumberOps<NumT> {
     switch (ops) {
         case 'decimal':
