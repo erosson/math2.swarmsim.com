@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { Graph, Polynomial, Production } from '@erosson/polynomial';
-	import PolynomialView from '$lib/Polynomial.svelte';
-	import PolynomialHorner from '$lib/PolynomialHorner.svelte';
 	import Num from '$lib/Num.svelte';
+	import PolynomialView from '$lib/Polynomial.svelte';
 	import TimerPause from '$lib/TimerPause.svelte';
+	import { FrameRate } from '$lib/frame-rate';
 	import { Timer } from '$lib/timer';
-	import { parseEdges, unitName, type Edge, parseCounts } from '$lib/units';
+	import { parseCounts, parseEdges, unitName, type Edge } from '$lib/units';
+	import { Polynomial, Production } from '@erosson/polynomial';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
 
 	let tInput = $state(`0`);
@@ -13,6 +13,7 @@
 	let prodInput = $state(`2, 3, 4, 5`);
 	let timer = $state(new Timer(Math.floor(performance.timeOrigin)));
 	let paused = $state(false);
+	let frameRate = $state(new FrameRate());
 
 	const edges: readonly Edge[] = $derived(parseEdges(prodInput) ?? []);
 	const edgesFrom: ReadonlyMap<string, Edge> = $derived(new Map(edges.map((e) => [e.from, e])));
@@ -29,6 +30,7 @@
 			set: (t: Timer) => {
 				timer = t;
 				tInput = `${t.elapsedSec}`;
+				frameRate = frameRate.pushTimer(t);
 			},
 			isPaused: () => paused
 		})
@@ -56,6 +58,7 @@
 		</label>
 	</div>
 	<TimerPause bind:paused bind:timer />
+	{frameRate.fps}fps
 
 	<table>
 		<thead>
