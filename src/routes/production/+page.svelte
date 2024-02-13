@@ -19,10 +19,15 @@
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
 
 	const params = {
-		t: $page.url.searchParams.get('t'),
-		c: $page.url.searchParams.get('c'),
-		p: $page.url.searchParams.get('p'),
-		o: $page.url.searchParams.get('o')
+		// TODO: refactor for adapter-static
+		t: null,
+		c: null,
+		p: null,
+		o: null
+		// t: $page.url.searchParams.get('t'),
+		// c: $page.url.searchParams.get('c'),
+		// p: $page.url.searchParams.get('p'),
+		// o: $page.url.searchParams.get('o')
 	};
 	let tInput = $state(params.t ?? `0`);
 	let countInput = $state(params.c ?? `10000, 2, 3, 4, 5`);
