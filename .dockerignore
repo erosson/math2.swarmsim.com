@@ -1,0 +1,6 @@
+node_mdoules
+build
+.yarn
+.svelte-kit
+Dockerfile
+docker-compose.yml
