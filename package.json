@@ -4,6 +4,7 @@
 	"private": true,
 	"packageManager": "yarn@1.22.19",
 	"scripts": {
+		"start": "yarn dev --host",
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
