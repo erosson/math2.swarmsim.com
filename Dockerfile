@@ -1,7 +1,7 @@
 # Build a node-based static site
 FROM node:22 AS build
 WORKDIR /app
-COPY package.json /app/
+COPY package.json yarn.lock /app/
 RUN yarn --frozen-lockfile
 # `.dockerignore` is important to cache this copy properly
 COPY . /app/
