@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import Num from '$lib/Num.svelte';
+	import PolyTerm from '$lib/PolyTerm.svelte';
 	import PolynomialView from '$lib/Polynomial.svelte';
 	import TimerPause from '$lib/TimerPause.svelte';
 	import { FrameRate } from '$lib/frame-rate';
@@ -109,15 +110,16 @@
 	<TimerPause bind:paused bind:timer />
 	{frameRate.fps}fps
 
-	<table>
+	<table class="bordered">
 		<thead>
 			<tr>
 				<th>Unit</th>
 				<th>Count(0)</th>
 				<th>Produces</th>
 				<th>Count(t)</th>
-				<th>Polynomial</th>
+				<!-- <th>Polynomial</th> -->
 				<th>Evaluation</th>
+				<!-- <th>Percentage</th> -->
 				<th>typeof</th>
 			</tr>
 		</thead>
@@ -139,26 +141,59 @@
 						{/if}
 					</td>
 					<td><Num value={Math.floor(ops.toNumber(value))} /></td>
-					<td> f(t) = <PolynomialView value={poly} /> </td>
+					<!-- <td> f(t) = <PolynomialView value={poly} /> </td> -->
+					<!-- <td> -->
+					<!-- f(t) = {#each valueEach.map((e, j) => [e, j]).toReversed() as [e, j]} -->
+					<!-- <Num value={Math.floor(ops.toNumber(e))} />{j === 0 ? '' : ' + '} -->
+					<!-- {/each} -->
+					<!-- </td> -->
 					<td>
-						f(t) = {#each valueEach.map((e, i) => [e, i]).toReversed() as [e, i]}
-							<Num value={Math.floor(ops.toNumber(e))} />{i === 0 ? '' : ' + '}
-						{/each}
-					</td>
-					<td>
-						f(t) = {#each valueEach.map((e, i) => [e, i]).toReversed() as [e, i]}
-							<Num value={Math.floor(ops.toNumber(e))} />{i === 0 ? '' : ' + '}
-						{/each}
-						<div>
-							{#each valueEach.map((e, i) => [e, i]).toReversed() as [e, i]}
-								<ProgressRadial
-									value={(ops.toNumber(e) * 100) / (ops.toNumber(value) || 1)}
-									width="w-6"
-									stroke={256}
-									class="inline-block"
-								/>
-							{/each}
-						</div>
+						<!-- I tried this with column-oriented flexboxes first, but a table gives better copy-paste formatting because it's row-oriented -->
+						<table class="unbordered">
+							<tbody>
+								<tr>
+									<td style="text-align:right"><code>f(t)=</code></td>
+									{#each poly.coeffs.toReversed() as polyCoeff, j}
+										<td class="term top-term">
+											<PolyTerm length={poly.coeffs.length} i={j} value={polyCoeff} />
+										</td>
+										{#if j < poly.coeffs.length - 1}
+											<td>+</td>
+										{/if}
+									{/each}
+								</tr>
+								<tr>
+									<td style="text-align:right"><code>f({timer.elapsedSec.toFixed(1)})=</code></td>
+									{#each valueEach.toReversed() as e, j}
+										<td class="term"><Num value={Math.floor(ops.toNumber(e))} /></td>
+										{#if j < poly.coeffs.length - 1}
+											<td>+</td>
+										{/if}
+									{/each}
+								</tr>
+								<tr>
+									<td></td>
+									{#each valueEach.toReversed() as e, j}
+										{@const percent = Math.round(
+											(ops.toNumber(e) * 100) / (ops.toNumber(value) || 1)
+										)}
+										{@const iname = unitName(i + j)}
+										{@const title = `${iname} produces ${percent}% of ${name} at t=${timer.elapsedSec.toFixed(0)}`}
+										<td class="term bottom-term" {title}>
+											<ProgressRadial
+												value={percent}
+												width="w-6"
+												stroke={256}
+												class="inline-block"
+											/>
+										</td>
+										{#if j < poly.coeffs.length - 1}
+											<td></td>
+										{/if}
+									{/each}
+								</tr>
+							</tbody>
+						</table>
 					</td>
 					<td>{typeof counts.get(name)}</td>
 				</tr>
@@ -171,3 +206,24 @@
 	<!-- <div>f({timer.elapsedSec.toFixed(3)}) = <Num value={valueAt} /></div> -->
 	<!-- </div> -->
 </div>
+
+<style>
+	table.bordered td {
+		border: 2px inset;
+	}
+	table.unbordered td {
+		border: none;
+	}
+	table td.term {
+		border-left: 2px outset;
+		border-right: 2px outset;
+		text-align: center;
+		font-family: monospace;
+	}
+	table td.top-term {
+		border-top: 2px outset;
+	}
+	table td.bottom-term {
+		border-bottom: 2px outset;
+	}
+</style>

@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { Timer } from './timer';
 
-	let { paused, timer } = $props<{ paused: boolean; timer: Timer }>();
+	type Props = { paused: boolean; timer: Timer };
+	let { paused = $bindable(), timer = $bindable() }: Props = $props();
 
 	function setPaused(value: boolean) {
 		if (paused !== value) {

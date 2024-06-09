@@ -1,8 +1,10 @@
 <script lang="ts">
 	import type { NumT } from './units';
 
-	const { value } = $props<{ value: number }>();
+	type Props = { value: NumT };
+	const { value }: Props = $props();
 	const render = new Intl.NumberFormat('en-us');
+	const num: number = $derived(typeof value === 'number' ? value : value.toNumber());
 </script>
 
-<span class="font-mono">{render.format(value)}</span>
+<span class="font-mono">{render.format(num)}</span>

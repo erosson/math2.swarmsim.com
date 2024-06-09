@@ -1094,10 +1094,10 @@ esquery@^1.4.2:
   dependencies:
     estraverse "^5.1.0"
 
-esrap@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/esrap/-/esrap-1.2.1.tgz#8d95bc428920b82cc1084d662c2a0ace65724b0c"
-  integrity sha512-dhkcOLfN/aDdMFI1iwPEcy/XqAZzGNfgfEJjZozy2tia6u0dQoZyXzkRshHTckuNsM+c0CYQndY+uRFe3N+AIQ==
+esrap@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/esrap/-/esrap-1.2.2.tgz#b9e3afee3f12238563a763b7fa86220de2c53203"
+  integrity sha512-F2pSJklxx1BlQIQgooczXCPHmcWpn6EsP5oo73LQfonG9fIlIENQ8vMmfGXeojP9MrkzUNAfyU5vdFlR9shHAw==
   dependencies:
     "@jridgewell/sourcemap-codec" "^1.4.15"
     "@types/estree" "^1.0.1"
@@ -2250,10 +2250,10 @@ svelte-preprocess@^5.1.0:
     sorcery "^0.11.0"
     strip-indent "^3.0.0"
 
-svelte@^5.0.0-next.1:
-  version "5.0.0-next.45"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-5.0.0-next.45.tgz#fb65621c7448b357ea5f1a0c9fe09569fa9342e8"
-  integrity sha512-+Cy7+SzAOrtunlKxkPg7cpJiEuc2TM5TJTAU50OI1PkiCjYmWLvvxZYwn0ulHMRJL6vQ4CCOOMUGbs7kUoqBKg==
+svelte@^5.0.0-next.152:
+  version "5.0.0-next.152"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-5.0.0-next.152.tgz#4d0df86eab9edf751bec19f2d49b499f095a682f"
+  integrity sha512-/qepboI/elf4Jg/pRM/0drsF9vwXBYqOwSpZOq+cduddU9413pDlHZODBqwrDy9xVt24tQb+1x1EMSbwI9eizA==
   dependencies:
     "@ampproject/remapping" "^2.2.1"
     "@jridgewell/sourcemap-codec" "^1.4.15"
@@ -2263,11 +2263,11 @@ svelte@^5.0.0-next.1:
     aria-query "^5.3.0"
     axobject-query "^4.0.0"
     esm-env "^1.0.0"
-    esrap "^1.2.1"
+    esrap "^1.2.2"
     is-reference "^3.0.2"
     locate-character "^3.0.0"
     magic-string "^0.30.5"
-    zimmerframe "^1.1.0"
+    zimmerframe "^1.1.2"
 
 tailwindcss@^3.3.6:
   version "3.4.1"
@@ -2540,10 +2540,10 @@ yocto-queue@^1.0.0:
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-1.0.0.tgz#7f816433fb2cbc511ec8bf7d263c3b58a1a3c251"
   integrity sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==
 
-zimmerframe@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/zimmerframe/-/zimmerframe-1.1.0.tgz#29f2b760d11228490109808e2b56ba67f25af199"
-  integrity sha512-+AmV37r9NPUy7KcuG0Fde9AAFSD88kN5pnqvD7Pkp5WLLK0jct7hAtIDXXFDCRk3l5Mc1r2Sth3gfP2ZLE+/Qw==
+zimmerframe@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/zimmerframe/-/zimmerframe-1.1.2.tgz#5b75f1fa83b07ae2a428d51e50f58e2ae6855e5e"
+  integrity sha512-rAbqEGa8ovJy4pyBxZM70hg4pE6gDgaQ0Sl9M3enG3I0d6H4XSAM3GeNGLKnsBpuijUow064sf7ww1nutC5/3w==
 
 zod@^3.22.4:
   version "3.22.4"
