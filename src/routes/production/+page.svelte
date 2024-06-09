@@ -32,8 +32,9 @@
 	let tInput = $state(params.t ?? `0`);
 	let countInput = $state(params.c ?? `10000, 2, 4, 6, 8`);
 	let prodInput = $state(params.p ?? `3, 5, 7, 9`);
-	let timer = $state(new Timer(Math.floor(performance.timeOrigin)));
 	let paused = $state(params.t != null);
+	// $state, not $derived, because pause
+	let timer = $state(new Timer(Math.floor(performance.timeOrigin)));
 	let frameRate = $state(new FrameRate());
 	let opsName = $state<NumTName>(parseNumT(params.o ?? '') ?? 'number');
 	let selected = $state<string | null>(null);
@@ -60,6 +61,12 @@
 			isPaused: () => paused
 		})
 	);
+	function reify() {
+		const units = countsList.map((_, i) => unitName(i));
+		const counts = units.map((u) => polys.get(u)!.evaluate(timer.elapsedSec));
+		countInput = counts.join(', ');
+		timer = timer.setOrigin(timer.now);
+	}
 	// $effect(() => {
 	//  // apply inputs to url
 	// 	let ps: URLSearchParams | null = null;
@@ -125,8 +132,25 @@
 			>
 		</div>
 	</div>
-	<TimerPause bind:paused bind:timer />
-	{frameRate.fps}fps
+	<div>
+		<details>
+			<summary class="variant-filled-secondary btn-group" tabindex="-1">
+				<button onclick={reify}>Reify</button>
+				<div role="button" tabindex="0" class="btn cursor-pointer">?</div>
+			</summary>
+			<div>
+				<p>
+					Change the start time (the real-world time at which t=0) to <code>now</code>, updating
+					unit counts to match.
+				</p>
+				<p>Swarmsim reifies before buying units, casting abilities, or other discontinuities.</p>
+			</div>
+		</details>
+	</div>
+	<div>
+		<TimerPause bind:paused bind:timer />
+		{frameRate.fps}fps
+	</div>
 
 	<table class="bordered">
 		<thead>
@@ -197,9 +221,9 @@
 										{@const degree = countsList.length - i - j - 1}
 										{@const prods = edges.slice(i, i + degree).map((e) => e.each)}
 										<td class="term top-term">
-											<span {...selectable(`count-${i + rj}`)}>{count}</span
+											<span {...selectable(`count-${i + rj}`)}><Num value={count} /></span
 											>{#if prods.length}&times;({#each prods as e, k}
-													<span {...selectable(`prod-${i + k + 1}`)}>{e}</span
+													<span {...selectable(`prod-${i + k + 1}`)}><Num value={e} /></span
 													>{#if k < prods.length - 1}&times;{/if}
 												{/each}){/if}&times;<span {...selectable(`degree-${degree + i}`)}
 												>t<sup>{degree}</sup></span

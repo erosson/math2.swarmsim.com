@@ -14,6 +14,6 @@
 	}
 </script>
 
-<button class="variant-filled-secondary btn block" onclick={() => setPaused(!paused)}>
+<button class="variant-filled-secondary btn" onclick={() => setPaused(!paused)}>
 	{paused ? 'Resume' : 'Pause'}
 </button>
