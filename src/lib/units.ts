@@ -41,11 +41,18 @@ export function parseCount(v: string, ops: NumTName): NumT {
             return parseFloat(v)
     }
 }
-export function parseCounts(v: string, ops: NumTName): ReadonlyMap<string, NumT> | null {
+export function parseCountsList(v: string, ops: NumTName): readonly NumT[] | null {
     const counts = v.split(',').map((c) => parseCount(c, ops));
     // isNaN
     if (counts.some(c => typeof c === 'number' ? isNaN(c) : (isNaN(c.s) && isNaN(c.e)))) return null;
+    return counts
+}
+export function keyByUnit(counts: readonly NumT[]): ReadonlyMap<string, NumT> {
     return new Map(counts.map((count, i) => [unitName(i), count]));
+}
+export function parseCountsByUnit(v: string, ops: NumTName): ReadonlyMap<string, NumT> | null {
+    const l = parseCountsList(v, ops)
+    return l === null ? l : keyByUnit(l)
 }
 
 export type NumTName = 'number' | 'decimal' | 'break_infinity'

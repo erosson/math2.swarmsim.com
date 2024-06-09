@@ -3,10 +3,11 @@
 	import Num from './Num.svelte';
 	import type { NumT } from './units';
 
-	const { value: poly } = $props<{ value: Polynomial<NumT> }>();
+	type Props = { poly: Polynomial<NumT> }
+	const { poly }: Props = $props();
 </script>
 
-{#snippet render(coeffs: readonly NumT[], inner=false)}
+{#snippet render(coeffs: readonly NumT[], inner: boolean)}
 	{#if coeffs.length === 0}{:else if coeffs.length === 1}
 		{@const [value] = coeffs}
 		<Num {value} />
@@ -18,5 +19,5 @@
 {/snippet}
 
 <code>
-	{@render render(poly.coeffs)}
+	{@render render(poly.coeffs, false)}
 </code>

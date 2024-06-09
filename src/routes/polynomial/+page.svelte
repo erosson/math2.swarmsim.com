@@ -52,7 +52,7 @@
 
 	<div class="font-mono">
 		<div>f(t) = <PolynomialView value={poly} /></div>
-		<div>f(t) = <PolynomialHorner value={poly} /></div>
+		<div>f(t) = <PolynomialHorner {poly} /></div>
 		<div>f({timer.elapsedSec.toFixed(3)}) = <Num value={valueAt} /></div>
 	</div>
 </div>

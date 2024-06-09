@@ -3,7 +3,8 @@
 	import PolyTerm from './PolyTerm.svelte';
 	import type { NumT } from './units';
 
-	const { value: poly } = $props<{ value: Polynomial<NumT> }>();
+	type Props = { value: Polynomial<NumT> };
+	const { value: poly }: Props = $props();
 </script>
 
 <code>
