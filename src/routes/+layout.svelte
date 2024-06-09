@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { AppShell } from '@skeletonlabs/skeleton';
+	import { AppShell, LightSwitch } from '@skeletonlabs/skeleton';
 	import '../app.pcss';
 </script>
 
@@ -10,6 +10,7 @@
 			<ul>
 				<li><a href="/polynomial">Polynomial</a></li>
 				<li><a href="/production">Production</a></li>
+				<li><LightSwitch /></li>
 			</ul>
 		</nav>
 		<!-- --- -->

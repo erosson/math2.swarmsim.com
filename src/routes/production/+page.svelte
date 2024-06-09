@@ -88,6 +88,9 @@
 	// });
 	function selectable(name: string) {
 		const isSelected = selected === name;
+		const selectClasses = 'selected bg-primary-400 font-bold';
+		const commonClasses = 'underline decoration-secondary-400 cursor-pointer font-mono';
+		const cls = isSelected ? `${selectClasses} ${commonClasses}` : `${commonClasses}`;
 		function select() {
 			console.log('select', name);
 			selected = name;
@@ -97,7 +100,7 @@
 			selected = null;
 		}
 		return {
-			class: isSelected ? 'selected' : 'deselected',
+			class: cls,
 			onclick: select,
 			onmouseover: select,
 			onmouseout: deselect
@@ -188,7 +191,7 @@
 							<span {...selectable(`prod-${i}`)}><Num value={prod} /> {unitName(i - 1)}/sec</span>
 						{/if}
 					</td>
-					<td style="font-family:monospace">
+					<td class="font-mono">
 						<table>
 							<tbody>
 								<tr {...selectable(`count-${i}`)}>
@@ -213,22 +216,23 @@
 						<table class="polynomial">
 							<tbody>
 								<tr>
-									<td style="text-align:right"><code>f(t)=</code></td>
+									<td class="text-right"><code>f(t)=</code></td>
 									<!-- <td><PolynomialHorner {poly} /></td> -->
 									{#each poly.coeffs.toReversed() as polyCoeff, j}
 										{@const rj = poly.coeffs.length - j - 1}
 										{@const count = countsList[i + rj]}
 										{@const degree = countsList.length - i - j - 1}
 										{@const prods = edges.slice(i, i + degree).map((e) => e.each)}
-										<td class="term top-term">
-											<span {...selectable(`count-${i + rj}`)}><Num value={count} /></span
+										<td class="term top-term px-2">
+											<span {...selectable(`count-${i + rj}`)}>
+												<Num value={count} /></span
 											>{#if prods.length}&times;({#each prods as e, k}
 													<span {...selectable(`prod-${i + k + 1}`)}><Num value={e} /></span
 													>{#if k < prods.length - 1}&times;{/if}
 												{/each}){/if}&times;<span {...selectable(`degree-${degree + i}`)}
-												>t<sup>{degree}</sup></span
-											>
-											<hr style="border: 1px solid black" />
+												>t<sup>{degree}</sup>
+											</span>
+											<hr style="border: 1px solid" />
 											<span {...selectable(`degree-${degree + i}`)}>{prods.length}!</span>
 											<!-- <PolyTerm length={poly.coeffs.length} i={j} value={polyCoeff} /> -->
 										</td>
@@ -238,7 +242,7 @@
 									{/each}
 								</tr>
 								<tr>
-									<td style="text-align:right"><code>f(t)=</code></td>
+									<td class="text-right"><code>f(t)=</code></td>
 									{#each poly.coeffs.toReversed() as polyCoeff, j}
 										<td class="term top-term">
 											<PolyTerm length={poly.coeffs.length} i={j} value={polyCoeff} />
@@ -249,7 +253,7 @@
 									{/each}
 								</tr>
 								<tr>
-									<td style="text-align:right"><code>f({timer.elapsedSec.toFixed(1)})=</code></td>
+									<td class="text-right"><code>f({timer.elapsedSec.toFixed(1)})=</code></td>
 									{#each valueEach.toReversed() as e, j}
 										<td class="term"><Num value={Math.floor(ops.toNumber(e))} /></td>
 										{#if j < poly.coeffs.length - 1}
@@ -311,15 +315,5 @@
 	}
 	table td.bottom-term {
 		border-bottom: 2px outset;
-	}
-	.selected {
-		background-color: yellow;
-		font-weight: bold;
-	}
-	.deselected,
-	.selected {
-		text-decoration: underline;
-		cursor: pointer;
-		font-family: monospace;
 	}
 </style>
