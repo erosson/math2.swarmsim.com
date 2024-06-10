@@ -33,6 +33,14 @@
 </script>
 
 <div class="container mx-auto space-y-8 p-8">
+	<h1 class="text-2xl font-bold">
+		A single <a class="underline" target="_blank" href="https://www.swarmsim.com">Swarm Simulator</a
+		> polynomial
+	</h1>
+	<p>
+		Most Swarmsim calculations are polynomial equations. Use this page to explore how a single
+		polynomial equation works.
+	</p>
 	<div>
 		<label>
 			Polynomial's coefficients, comma-separated
