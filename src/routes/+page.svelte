@@ -129,7 +129,7 @@
 	<p>
 		Most Swarmsim calculations are polynomial equations. Use this page to explore how these
 		equations work. Click an equation to see how it was constructed, then hover/tap each term to
-		highlight where it came from.
+		highlight where else that term is used.
 	</p>
 	<div class="flex">
 		<label class="mx-4 my-auto">
