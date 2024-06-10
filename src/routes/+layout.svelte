@@ -8,8 +8,8 @@
 		<!-- Insert the list: -->
 		<nav class="list-nav">
 			<ul>
+				<li><a href="/">Production</a></li>
 				<li><a href="/polynomial">Polynomial</a></li>
-				<li><a href="/production">Production</a></li>
 				<li><LightSwitch /></li>
 			</ul>
 		</nav>
