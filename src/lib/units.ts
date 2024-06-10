@@ -21,6 +21,7 @@ export function unitName(i: number): string {
     return unitNames[i] ?? `[Unit T${i}]`;
 }
 export function parseEdges(v: string): readonly Edge[] | null {
+    if (v === '') return []
     const eaches = v.split(',').map((c) => parseFloat(c.trim() || '0'));
     if (eaches.some(isNaN)) return null;
     return eaches.map((each, i) => {
@@ -42,6 +43,7 @@ export function parseCount(v: string, ops: NumTName): NumT {
     }
 }
 export function parseCountsList(v: string, ops: NumTName): readonly NumT[] | null {
+    if (v === '') return []
     const counts = v.split(',').map((c) => parseCount(c, ops));
     // isNaN
     if (counts.some(c => typeof c === 'number' ? isNaN(c) : (isNaN(c.s) && isNaN(c.e)))) return null;

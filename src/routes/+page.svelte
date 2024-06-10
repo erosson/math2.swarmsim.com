@@ -38,8 +38,8 @@
 		const list = str.split(',').map((c) => c.trim());
 		return { str, list };
 	}
-	function commaList(list: readonly string[], i: number, val: string): CommaSeparated {
-		list = [...list.slice(0, i), val, ...list.slice(i + 1)];
+	function commaList(list: readonly string[], i: number, val: string | null): CommaSeparated {
+		list = [...list.slice(0, i), ...(val === null ? [] : [val]), ...list.slice(i + 1)];
 		const str = list.join(', ');
 		return { str, list };
 	}
@@ -118,6 +118,16 @@
 			onmouseover: select,
 			onmouseout: deselect
 		};
+	}
+	function newUnit() {
+		countInput = commaList(countInput.list, countInput.list.length, '0');
+		prodInput = commaList(prodInput.list, prodInput.list.length, '0');
+	}
+	function deleteUnit() {
+		if (prodInput.list.length >= 0) {
+			countInput = commaList(countInput.list, countInput.list.length - 1, null);
+			prodInput = commaList(prodInput.list, prodInput.list.length - 1, null);
+		}
 	}
 </script>
 
@@ -313,6 +323,14 @@
 			{/each}
 		</tbody>
 	</table>
+	<button class="variant-filled-primary btn !mt-0" onclick={newUnit}> new unit </button>
+	<button
+		class="variant-filled-error btn !mt-0"
+		onclick={deleteUnit}
+		disabled={prodInput.list.length <= 0}
+	>
+		delete last unit
+	</button>
 	<!-- <div class="font-mono"> -->
 	<!-- <div>f(t) = <PolynomialView value={poly} /></div> -->
 	<!-- <div>f(t) = <PolynomialHorner value={poly} /></div> -->
