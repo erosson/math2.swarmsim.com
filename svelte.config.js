@@ -8,6 +8,10 @@ const config = {
 	preprocess: [vitePreprocess({})],
 
 	kit: {
+		paths: {
+			base: process.env['BASE_PATH'] ?? undefined,
+			relative: false,
+		},
 		adapter: adapter()
 	}
 };
