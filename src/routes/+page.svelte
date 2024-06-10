@@ -4,6 +4,7 @@
 	import PolynomialView from '$lib/Polynomial.svelte';
 	import TimerPause from '$lib/TimerPause.svelte';
 	import { FrameRate } from '$lib/frame-rate';
+	import * as Style from '$lib/style';
 	import { Timer } from '$lib/timer';
 	import {
 		keyByUnit,
@@ -82,30 +83,9 @@
 		countInput = commaStr(counts.join(', '));
 		timer = timer.setOrigin(timer.now);
 	}
-	// $effect(() => {
-	//  // apply inputs to url
-	// 	let ps: URLSearchParams | null = null;
-	// 	if (prodInput !== params.p) {
-	// 		ps = ps || new URLSearchParams($page.url.searchParams);
-	// 		ps.set('p', prodInput);
-	// 	}
-	// 	if (countInput !== params.c) {
-	// 		ps = ps || new URLSearchParams($page.url.searchParams);
-	// 		ps.set('c', countInput);
-	// 	}
-	// 	if (opsName !== params.o) {
-	// 		ps = ps || new URLSearchParams($page.url.searchParams);
-	// 		ps.set('o', opsName);
-	// 	}
-	// 	if (ps) {
-	// 		goto(`?${ps.toString()}`, { replaceState: true });
-	// 	}
-	// });
 	function selectable(name: string) {
 		const isSelected = selected === name;
-		const selectClasses = 'selected bg-primary-700 font-bold';
-		const commonClasses = 'underline decoration-secondary-500 cursor-pointer font-mono';
-		const cls = isSelected ? `${selectClasses} ${commonClasses}` : `${commonClasses}`;
+		const cls = isSelected ? Style.selected : Style.deselected;
 		function select() {
 			selected = name;
 		}
@@ -137,6 +117,7 @@
 		<a class="underline" target="_blank" href="https://www.swarmsim.com">Swarm Simulator</a>
 		units
 	</h1>
+	<p class="text-error-500 md:hidden">Designed for large screens.</p>
 	<p>
 		Most Swarmsim calculations are polynomial equations. Use this page to explore how these
 		equations work. Click an equation to see how it was constructed, then hover/tap each term to
@@ -180,7 +161,7 @@
 				<th class="border-2 border-solid border-secondary-500">Production</th>
 				<th class="border-2 border-solid border-secondary-500">
 					<details bind:open={expandAllPolys}>
-						<summary class="cursor-pointer underline decoration-primary-500"> Polynomials </summary>
+						<summary class={Style.expandLink}> Polynomials </summary>
 					</details>
 				</th>
 			</tr>
@@ -231,7 +212,7 @@
 						<!-- I tried this with column-oriented flexboxes first, but a table gives better copy-paste formatting because it's row-oriented -->
 						<details open={expandAllPolys}>
 							<summary>
-								<div class="inline-block cursor-pointer font-mono underline decoration-primary-500">
+								<div class={`inline-block font-mono ${Style.expandLink}`}>
 									<div>
 										f({timer.elapsedSec.toFixed(1)}) = <Num
 											value={Math.floor(ops.toNumber(value))}
@@ -319,7 +300,6 @@
 							</table>
 						</details>
 					</td>
-					<!-- <td>{typeof counts.get(name)}</td> -->
 				</tr>
 			{/each}
 		</tbody>
@@ -332,13 +312,8 @@
 	>
 		delete last unit
 	</button>
-	<!-- <div class="font-mono"> -->
-	<!-- <div>f(t) = <PolynomialView value={poly} /></div> -->
-	<!-- <div>f(t) = <PolynomialHorner value={poly} /></div> -->
-	<!-- <div>f({timer.elapsedSec.toFixed(3)}) = <Num value={valueAt} /></div> -->
-	<!-- </div> -->
 	<details>
-		<summary>settings</summary>
+		<summary class={Style.expandLink}>settings</summary>
 		<label>
 			Unit counts, comma-separated
 			<input
@@ -356,11 +331,20 @@
 			/>
 		</label>
 		<div>
-			<label><input bind:group={opsName} type="radio" value="number" />native numbers</label>
-			<label><input bind:group={opsName} type="radio" value="decimal" />Decimal.js numbers</label>
-			<label
-				><input bind:group={opsName} type="radio" value="break_infinity" />break_infinity.js numbers</label
-			>
+			Number backend
+			<label>
+				<input bind:group={opsName} type="radio" value="number" /> built-in numbers - simplest, fastest,
+				but maximum value of 1e308
+			</label>
+			<label>
+				<input bind:group={opsName} type="radio" value="decimal" /> Decimal.js numbers - very large maximum
+				value, but slow. swarmsim-classic uses this
+			</label>
+			<label>
+				<input bind:group={opsName} type="radio" value="break_infinity" /> break_infinity.js numbers
+				- decimal.js alternative. faster and less precise
+			</label>
+			<p>below 1e308, behaviour of all number backends should be identical</p>
 		</div>
 	</details>
 </div>
