@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Num from '$lib/Num.svelte';
-	import PolyTerm from '$lib/PolyTerm.svelte';
+	import PolyT from '$lib/PolyT.svelte';
+	import PolynomialView from '$lib/Polynomial.svelte';
 	import TimerPause from '$lib/TimerPause.svelte';
 	import { FrameRate } from '$lib/frame-rate';
 	import { Timer } from '$lib/timer';
@@ -51,6 +52,7 @@
 	let frameRate = $state(new FrameRate());
 	let opsName = $state<NumTName>(parseNumT(params.o ?? '') ?? 'number');
 	let selected = $state<string | null>(null);
+	let expandAllPolys = $state<boolean>(false);
 	const ops = $derived(parseOps(opsName));
 
 	const edges: readonly Edge[] = $derived(parseEdges(prodInput.str) ?? []);
@@ -101,15 +103,13 @@
 	// });
 	function selectable(name: string) {
 		const isSelected = selected === name;
-		const selectClasses = 'selected bg-primary-400 font-bold';
-		const commonClasses = 'underline decoration-secondary-400 cursor-pointer font-mono';
+		const selectClasses = 'selected bg-primary-700 font-bold';
+		const commonClasses = 'underline decoration-secondary-500 cursor-pointer font-mono';
 		const cls = isSelected ? `${selectClasses} ${commonClasses}` : `${commonClasses}`;
 		function select() {
-			console.log('select', name);
 			selected = name;
 		}
 		function deselect() {
-			console.log('deselect', name);
 			selected = null;
 		}
 		return {
@@ -122,7 +122,204 @@
 </script>
 
 <div class="container mx-auto space-y-8 p-8">
-	<div>
+	<h1 class="text-2xl font-bold">
+		The math of
+		<a class="underline" target="_blank" href="https://www.swarmsim.com">Swarm Simulator</a>
+	</h1>
+	<p>
+		Most Swarmsim calculations are polynomial equations. Use this page to explore how these
+		equations work. Click an equation to see how it was constructed, then hover/tap each term to
+		highlight where it came from.
+	</p>
+	<div class="flex">
+		<label class="mx-4 my-auto">
+			Time, in seconds (<code>t</code>) =
+			<input
+				class="input w-20"
+				type="number"
+				bind:value={tInput}
+				oninput={() => (timer = timer.parseElapsedSec(tInput) ?? timer)}
+			/>
+		</label>
+		<div class="mx-4 my-auto">
+			<TimerPause bind:paused bind:timer />
+			{frameRate.fps}fps
+		</div>
+		<div class="mx-4 my-auto">
+			<details>
+				<summary class="variant-filled-secondary btn-group" tabindex="-1">
+					<button onclick={reify}>Reify</button>
+					<div role="button" tabindex="0" class="btn cursor-pointer">?</div>
+				</summary>
+				<div>
+					<p>
+						Change the start time (the real-world time at which t=0) to <code>now</code>, updating
+						unit counts to match.
+					</p>
+					<p>Swarmsim reifies before buying units, casting abilities, or other discontinuities.</p>
+				</div>
+			</details>
+		</div>
+	</div>
+	<table>
+		<thead>
+			<tr>
+				<th class="border-2 border-solid border-secondary-500">Unit</th>
+				<th class="border-2 border-solid border-secondary-500">Count</th>
+				<th class="border-2 border-solid border-secondary-500">Production</th>
+				<th class="border-2 border-solid border-secondary-500">
+					<details bind:open={expandAllPolys}>
+						<summary class="cursor-pointer underline decoration-primary-500"> Polynomials </summary>
+					</details>
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			{#each [...Array(polys.size).keys()] as i}
+				{@const name = unitName(i)}
+				{@const poly = polys.get(name) ?? Polynomial.zero()}
+				{@const prod = edgesFrom.get(name)?.each}
+				{@const value = poly.evaluate(timer.elapsedSec)}
+				{@const valueEach: readonly NumT[] = poly.coeffs.map((c, i) =>
+					Polynomial.parse([...Array(i).fill(ops.zero), c], ops).evaluate(timer.elapsedSec)
+				)}
+				<tr>
+					<td class="border-2 border-solid border-secondary-500">
+						<span {...selectable(`degree-${i}`)}>{name}<br />(degree {i})</span>
+					</td>
+					<td class="border-2 border-solid border-secondary-500">
+						<div {...selectable(`count-${i}`)}>
+							<p>{name} count</p>
+							<input
+								type="number"
+								class="input w-24"
+								value={countInput.list[i]}
+								oninput={(e) => (countInput = commaList(countInput.list, i, e.currentTarget.value))}
+							/>
+							<!-- <Num value={ops.toNumber(countsList[i] ?? 0)} /> -->
+						</div>
+						<!-- <br /> -->
+					</td>
+					<td class="border-2 border-solid border-secondary-500">
+						{#if prod != null}
+							{@const prodName = unitName(i - 1)}
+							<div {...selectable(`prod-${i}`)}>
+								<!-- <span {...selectable(`prod-${i}`)}><Num value={prod} /> {prodName}/sec</span> -->
+								<p>{prodName}/sec each</p>
+								<input
+									type="number"
+									class="input w-24"
+									value={prodInput.list[i - 1]}
+									oninput={(e) =>
+										(prodInput = commaList(prodInput.list, i - 1, e.currentTarget.value))}
+								/>
+							</div>
+						{/if}
+					</td>
+					<td class="border-2 border-solid border-secondary-500">
+						<!-- I tried this with column-oriented flexboxes first, but a table gives better copy-paste formatting because it's row-oriented -->
+						<details open={expandAllPolys}>
+							<summary>
+								<div class="inline-block cursor-pointer font-mono underline decoration-primary-500">
+									<div>
+										f({timer.elapsedSec.toFixed(1)}) = <Num
+											value={Math.floor(ops.toNumber(value))}
+										/>
+									</div>
+									<div>f(t) = <PolynomialView value={poly} /></div>
+								</div>
+							</summary>
+							<table class="text-center">
+								<tbody>
+									<tr>
+										<td class="text-right"><code>f({timer.elapsedSec.toFixed(1)})=</code></td>
+										{#each valueEach.toReversed() as e, j}
+											<td class="border-x-2 border-t-2 border-solid border-tertiary-500">
+												<Num value={Math.floor(ops.toNumber(e))} />
+											</td>
+											{#if j < poly.coeffs.length - 1}
+												<td>+</td>
+											{/if}
+										{/each}
+									</tr>
+									<tr>
+										<td></td>
+										{#each valueEach.toReversed() as e, j}
+											{@const percent = Math.round(
+												(ops.toNumber(e) * 100) / (ops.toNumber(value) || 1)
+											)}
+											{@const iname = unitName(i + (valueEach.length - 1 - j))}
+											{@const title = `${iname} produces ${percent}% of ${name} at t=${timer.elapsedSec.toFixed(0)}`}
+											<td class="border-x-2 border-b-2 border-solid border-tertiary-500" {title}>
+												<ProgressRadial
+													value={percent}
+													width="w-6"
+													stroke={256}
+													class="inline-block"
+												/>
+											</td>
+											{#if j < poly.coeffs.length - 1}
+												<td></td>
+											{/if}
+										{/each}
+									</tr>
+									<tr>
+										<td class="text-right"><code>f(t)=</code></td>
+										{#each poly.coeffs.toReversed() as polyCoeff, j}
+											{@const degree = countsList.length - i - j - 1}
+											<td class="border-x-2 border-solid border-tertiary-500">
+												<!-- <PolyTerm length={poly.coeffs.length} i={j} value={polyCoeff} /> -->
+												<Num value={polyCoeff} /><span {...selectable(`degree-${degree + i}`)}
+													><PolyT i={j} length={poly.coeffs.length} /></span
+												>
+											</td>
+											{#if j < poly.coeffs.length - 1}
+												<td>+</td>
+											{/if}
+										{/each}
+									</tr>
+									<tr>
+										<td class="text-right"><code>f(t)=</code></td>
+										<!-- <td><PolynomialHorner {poly} /></td> -->
+										{#each poly.coeffs.toReversed() as polyCoeff, j}
+											{@const rj = poly.coeffs.length - j - 1}
+											{@const count = countsList[i + rj]}
+											{@const degree = countsList.length - i - j - 1}
+											{@const prods = edges.slice(i, i + degree).map((e) => e.each)}
+											<td class="text-mono border-2 border-solid border-tertiary-500 px-2">
+												<span {...selectable(`count-${i + rj}`)}>
+													<Num value={count} /></span
+												>{#if prods.length}&times;({#each prods as e, k}
+														<span {...selectable(`prod-${i + k + 1}`)}><Num value={e} /></span
+														>{#if k < prods.length - 1}&times;{/if}
+													{/each}){/if}&times;<span {...selectable(`degree-${degree + i}`)}
+													>t<sup>{degree}</sup>
+												</span>
+												<hr style="border: 1px solid" />
+												<span {...selectable(`degree-${degree + i}`)}>{prods.length}!</span>
+												<!-- <PolyTerm length={poly.coeffs.length} i={j} value={polyCoeff} /> -->
+											</td>
+											{#if j < poly.coeffs.length - 1}
+												<td>+</td>
+											{/if}
+										{/each}
+									</tr>
+								</tbody>
+							</table>
+						</details>
+					</td>
+					<!-- <td>{typeof counts.get(name)}</td> -->
+				</tr>
+			{/each}
+		</tbody>
+	</table>
+	<!-- <div class="font-mono"> -->
+	<!-- <div>f(t) = <PolynomialView value={poly} /></div> -->
+	<!-- <div>f(t) = <PolynomialHorner value={poly} /></div> -->
+	<!-- <div>f({timer.elapsedSec.toFixed(3)}) = <Num value={valueAt} /></div> -->
+	<!-- </div> -->
+	<details>
+		<summary>settings</summary>
 		<label>
 			Unit counts, comma-separated
 			<input
@@ -139,15 +336,6 @@
 				oninput={(e) => (prodInput = commaStr(e.currentTarget.value))}
 			/>
 		</label>
-		<label>
-			t
-			<input
-				class="input w-20"
-				type="number"
-				bind:value={tInput}
-				oninput={() => (timer = timer.parseElapsedSec(tInput) ?? timer)}
-			/>
-		</label>
 		<div>
 			<label><input bind:group={opsName} type="radio" value="number" />native numbers</label>
 			<label><input bind:group={opsName} type="radio" value="decimal" />Decimal.js numbers</label>
@@ -155,204 +343,5 @@
 				><input bind:group={opsName} type="radio" value="break_infinity" />break_infinity.js numbers</label
 			>
 		</div>
-	</div>
-	<div>
-		<details>
-			<summary class="variant-filled-secondary btn-group" tabindex="-1">
-				<button onclick={reify}>Reify</button>
-				<div role="button" tabindex="0" class="btn cursor-pointer">?</div>
-			</summary>
-			<div>
-				<p>
-					Change the start time (the real-world time at which t=0) to <code>now</code>, updating
-					unit counts to match.
-				</p>
-				<p>Swarmsim reifies before buying units, casting abilities, or other discontinuities.</p>
-			</div>
-		</details>
-	</div>
-	<div>
-		<TimerPause bind:paused bind:timer />
-		{frameRate.fps}fps
-	</div>
-
-	<table class="bordered">
-		<thead>
-			<tr>
-				<th>Unit</th>
-				<th>Degree</th>
-				<th>Count(0)</th>
-				<th>Produces</th>
-				<th>Count(t)</th>
-				<!-- <th>Polynomial</th> -->
-				<th>Evaluation</th>
-				<!-- <th>Percentage</th> -->
-				<!-- <th>typeof</th> -->
-			</tr>
-		</thead>
-		<tbody>
-			{#each [...Array(polys.size).keys()] as i}
-				{@const name = unitName(i)}
-				{@const poly = polys.get(name) ?? Polynomial.zero()}
-				{@const prod = edgesFrom.get(name)?.each}
-				{@const value = poly.evaluate(timer.elapsedSec)}
-				{@const valueEach: readonly NumT[] = poly.coeffs.map((c, i) =>
-					Polynomial.parse([...Array(i).fill(ops.zero), c], ops).evaluate(timer.elapsedSec)
-				)}
-				<tr>
-					<td><span {...selectable(`degree-${i}`)}>{name}</span></td>
-					<td><span {...selectable(`degree-${i}`)}>{i}</span></td>
-					<td>
-						<div {...selectable(`count-${i}`)}>
-							<p>{name} count</p>
-							<input
-								type="number"
-								class="input w-24"
-								value={countInput.list[i]}
-								oninput={(e) => (countInput = commaList(countInput.list, i, e.currentTarget.value))}
-							/>
-							<!-- <Num value={ops.toNumber(countsList[i] ?? 0)} /> -->
-						</div>
-					</td>
-					<td>
-						{#if prod != null}
-							{@const prodName = unitName(i - 1)}
-							<div {...selectable(`prod-${i}`)}>
-								<!-- <span {...selectable(`prod-${i}`)}><Num value={prod} /> {prodName}/sec</span> -->
-								<p>{prodName}/sec</p>
-								<input
-									type="number"
-									class="input w-24"
-									value={prodInput.list[i - 1]}
-									oninput={(e) =>
-										(prodInput = commaList(prodInput.list, i - 1, e.currentTarget.value))}
-								/>
-							</div>
-						{/if}
-					</td>
-					<td class="font-mono">
-						<table>
-							<tbody>
-								<tr {...selectable(`count-${i}`)}>
-									<td class="text-right">f(0)=</td>
-									<td><Num value={ops.toNumber(counts.get(name) ?? 0)} /></td>
-								</tr>
-								<tr>
-									<td class="text-right">f({timer.elapsedSec.toFixed(1)})=</td>
-									<td><Num value={Math.floor(ops.toNumber(value))} /></td>
-								</tr>
-							</tbody>
-						</table>
-					</td>
-					<!-- <td> f(t) = <PolynomialView value={poly} /> </td> -->
-					<!-- <td> -->
-					<!-- f(t) = {#each valueEach.map((e, j) => [e, j]).toReversed() as [e, j]} -->
-					<!-- <Num value={Math.floor(ops.toNumber(e))} />{j === 0 ? '' : ' + '} -->
-					<!-- {/each} -->
-					<!-- </td> -->
-					<td>
-						<!-- I tried this with column-oriented flexboxes first, but a table gives better copy-paste formatting because it's row-oriented -->
-						<table class="polynomial">
-							<tbody>
-								<tr>
-									<td class="text-right"><code>f(t)=</code></td>
-									<!-- <td><PolynomialHorner {poly} /></td> -->
-									{#each poly.coeffs.toReversed() as polyCoeff, j}
-										{@const rj = poly.coeffs.length - j - 1}
-										{@const count = countsList[i + rj]}
-										{@const degree = countsList.length - i - j - 1}
-										{@const prods = edges.slice(i, i + degree).map((e) => e.each)}
-										<td class="term top-term px-2">
-											<span {...selectable(`count-${i + rj}`)}>
-												<Num value={count} /></span
-											>{#if prods.length}&times;({#each prods as e, k}
-													<span {...selectable(`prod-${i + k + 1}`)}><Num value={e} /></span
-													>{#if k < prods.length - 1}&times;{/if}
-												{/each}){/if}&times;<span {...selectable(`degree-${degree + i}`)}
-												>t<sup>{degree}</sup>
-											</span>
-											<hr style="border: 1px solid" />
-											<span {...selectable(`degree-${degree + i}`)}>{prods.length}!</span>
-											<!-- <PolyTerm length={poly.coeffs.length} i={j} value={polyCoeff} /> -->
-										</td>
-										{#if j < poly.coeffs.length - 1}
-											<td>+</td>
-										{/if}
-									{/each}
-								</tr>
-								<tr>
-									<td class="text-right"><code>f(t)=</code></td>
-									{#each poly.coeffs.toReversed() as polyCoeff, j}
-										<td class="term top-term">
-											<PolyTerm length={poly.coeffs.length} i={j} value={polyCoeff} />
-										</td>
-										{#if j < poly.coeffs.length - 1}
-											<td>+</td>
-										{/if}
-									{/each}
-								</tr>
-								<tr>
-									<td class="text-right"><code>f({timer.elapsedSec.toFixed(1)})=</code></td>
-									{#each valueEach.toReversed() as e, j}
-										<td class="term"><Num value={Math.floor(ops.toNumber(e))} /></td>
-										{#if j < poly.coeffs.length - 1}
-											<td>+</td>
-										{/if}
-									{/each}
-								</tr>
-								<tr>
-									<td></td>
-									{#each valueEach.toReversed() as e, j}
-										{@const percent = Math.round(
-											(ops.toNumber(e) * 100) / (ops.toNumber(value) || 1)
-										)}
-										{@const iname = unitName(i + j)}
-										{@const title = `${iname} produces ${percent}% of ${name} at t=${timer.elapsedSec.toFixed(0)}`}
-										<td class="term bottom-term" {title}>
-											<ProgressRadial
-												value={percent}
-												width="w-6"
-												stroke={256}
-												class="inline-block"
-											/>
-										</td>
-										{#if j < poly.coeffs.length - 1}
-											<td></td>
-										{/if}
-									{/each}
-								</tr>
-							</tbody>
-						</table>
-					</td>
-					<!-- <td>{typeof counts.get(name)}</td> -->
-				</tr>
-			{/each}
-		</tbody>
-	</table>
-	<!-- <div class="font-mono"> -->
-	<!-- <div>f(t) = <PolynomialView value={poly} /></div> -->
-	<!-- <div>f(t) = <PolynomialHorner value={poly} /></div> -->
-	<!-- <div>f({timer.elapsedSec.toFixed(3)}) = <Num value={valueAt} /></div> -->
-	<!-- </div> -->
+	</details>
 </div>
-
-<style>
-	table.bordered td {
-		border: 2px inset;
-	}
-	table.polynomial td {
-		border: none;
-		font-family: monospace;
-	}
-	table td.term {
-		border-left: 2px outset;
-		border-right: 2px outset;
-		text-align: center;
-	}
-	table td.top-term {
-		border-top: 2px outset;
-	}
-	table td.bottom-term {
-		border-bottom: 2px outset;
-	}
-</style>
