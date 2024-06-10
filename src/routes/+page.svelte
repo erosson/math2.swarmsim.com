@@ -131,7 +131,7 @@
 	}
 </script>
 
-<div class="container mx-auto space-y-8 p-8">
+<div class="container mx-auto space-y-8 overflow-x-auto p-8">
 	<h1 class="text-2xl font-bold">
 		The math of
 		<a class="underline" target="_blank" href="https://www.swarmsim.com">Swarm Simulator</a>
