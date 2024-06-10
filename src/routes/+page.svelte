@@ -29,9 +29,22 @@
 		// p: $page.url.searchParams.get('p'),
 		// o: $page.url.searchParams.get('o')
 	};
+	interface CommaSeparated {
+		readonly str: string;
+		readonly list: readonly string[];
+	}
+	function commaStr(str: string): CommaSeparated {
+		const list = str.split(',').map((c) => c.trim());
+		return { str, list };
+	}
+	function commaList(list: readonly string[], i: number, val: string): CommaSeparated {
+		list = [...list.slice(0, i), val, ...list.slice(i + 1)];
+		const str = list.join(', ');
+		return { str, list };
+	}
 	let tInput = $state(params.t ?? `0`);
-	let countInput = $state(params.c ?? `10000, 2, 4, 6, 8`);
-	let prodInput = $state(params.p ?? `3, 5, 7, 9`);
+	let countInput = $state(commaStr(params.c ?? `10000, 2, 4, 6, 8`));
+	let prodInput = $state(commaStr(params.p ?? `3, 5, 7, 9`));
 	let paused = $state(params.t != null);
 	// $state, not $derived, because pause
 	let timer = $state(new Timer(Math.floor(performance.timeOrigin)));
@@ -40,9 +53,9 @@
 	let selected = $state<string | null>(null);
 	const ops = $derived(parseOps(opsName));
 
-	const edges: readonly Edge[] = $derived(parseEdges(prodInput) ?? []);
+	const edges: readonly Edge[] = $derived(parseEdges(prodInput.str) ?? []);
 	const edgesFrom: ReadonlyMap<string, Edge> = $derived(new Map(edges.map((e) => [e.from, e])));
-	const countsList: readonly NumT[] = $derived(parseCountsList(countInput, opsName) ?? []);
+	const countsList: readonly NumT[] = $derived(parseCountsList(countInput.str, opsName) ?? []);
 	const counts: ReadonlyMap<string, NumT> = $derived(keyByUnit(countsList));
 	const polys: ReadonlyMap<string, Polynomial<NumT>> = $derived(
 		counts.size === edges.length + 1
@@ -64,7 +77,7 @@
 	function reify() {
 		const units = countsList.map((_, i) => unitName(i));
 		const counts = units.map((u) => polys.get(u)!.evaluate(timer.elapsedSec));
-		countInput = counts.join(', ');
+		countInput = commaStr(counts.join(', '));
 		timer = timer.setOrigin(timer.now);
 	}
 	// $effect(() => {
@@ -112,11 +125,19 @@
 	<div>
 		<label>
 			Unit counts, comma-separated
-			<input class="input" bind:value={countInput} />
+			<input
+				class="input"
+				value={countInput.str}
+				oninput={(e) => (countInput = commaStr(e.currentTarget.value))}
+			/>
 		</label>
 		<label>
 			Unit production, comma-separated - must be one fewer than unit counts
-			<input class="input" bind:value={prodInput} />
+			<input
+				class="input"
+				value={prodInput.str}
+				oninput={(e) => (prodInput = commaStr(e.currentTarget.value))}
+			/>
 		</label>
 		<label>
 			t
@@ -170,7 +191,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#each [...Array(polys.size).keys()].toReversed() as i}
+			{#each [...Array(polys.size).keys()] as i}
 				{@const name = unitName(i)}
 				{@const poly = polys.get(name) ?? Polynomial.zero()}
 				{@const prod = edgesFrom.get(name)?.each}
@@ -182,24 +203,42 @@
 					<td><span {...selectable(`degree-${i}`)}>{name}</span></td>
 					<td><span {...selectable(`degree-${i}`)}>{i}</span></td>
 					<td>
-						<span {...selectable(`count-${i}`)}>
-							<Num value={ops.toNumber(countsList[i] ?? 0)} />
-						</span>
+						<div {...selectable(`count-${i}`)}>
+							<p>{name} count</p>
+							<input
+								type="number"
+								class="input w-24"
+								value={countInput.list[i]}
+								oninput={(e) => (countInput = commaList(countInput.list, i, e.currentTarget.value))}
+							/>
+							<!-- <Num value={ops.toNumber(countsList[i] ?? 0)} /> -->
+						</div>
 					</td>
 					<td>
 						{#if prod != null}
-							<span {...selectable(`prod-${i}`)}><Num value={prod} /> {unitName(i - 1)}/sec</span>
+							{@const prodName = unitName(i - 1)}
+							<div {...selectable(`prod-${i}`)}>
+								<!-- <span {...selectable(`prod-${i}`)}><Num value={prod} /> {prodName}/sec</span> -->
+								<p>{prodName}/sec</p>
+								<input
+									type="number"
+									class="input w-24"
+									value={prodInput.list[i - 1]}
+									oninput={(e) =>
+										(prodInput = commaList(prodInput.list, i - 1, e.currentTarget.value))}
+								/>
+							</div>
 						{/if}
 					</td>
 					<td class="font-mono">
 						<table>
 							<tbody>
 								<tr {...selectable(`count-${i}`)}>
-									<td>f(0)=</td>
+									<td class="text-right">f(0)=</td>
 									<td><Num value={ops.toNumber(counts.get(name) ?? 0)} /></td>
 								</tr>
 								<tr>
-									<td>f({timer.elapsedSec.toFixed(1)})=</td>
+									<td class="text-right">f({timer.elapsedSec.toFixed(1)})=</td>
 									<td><Num value={Math.floor(ops.toNumber(value))} /></td>
 								</tr>
 							</tbody>
