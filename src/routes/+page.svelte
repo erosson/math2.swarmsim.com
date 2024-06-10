@@ -133,8 +133,9 @@
 
 <div class="container mx-auto space-y-8 overflow-x-auto p-8">
 	<h1 class="text-2xl font-bold">
-		The math of
+		Math of
 		<a class="underline" target="_blank" href="https://www.swarmsim.com">Swarm Simulator</a>
+		units
 	</h1>
 	<p>
 		Most Swarmsim calculations are polynomial equations. Use this page to explore how these
